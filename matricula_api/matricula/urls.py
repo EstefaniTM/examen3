@@ -10,10 +10,10 @@ router.register(r"enrollments", EnrollmentViewSet, basename="enrollments")
 
 urlpatterns = [
     # Mongo
-    path("course_catalog/", course_catalog_list_create),
-    path("course_catalog//", course_catalog_detail),
-    path("vehicle-services/", enrollment_event_list_create),
-    path("enrollment_event//", enrollment_event_detail),
+    path("course-catalog/", course_catalog_list_create),
+    path("course-catalog//", course_catalog_detail),
+    path("enrollment-event/", enrollment_event_list_create),
+    path("enrollment-event//", enrollment_event_detail),
 ]
 
 urlpatterns += router.urls
