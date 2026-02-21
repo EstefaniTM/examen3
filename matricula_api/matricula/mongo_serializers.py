@@ -43,7 +43,7 @@ class Course_catalogSerializer(serializers.Serializer):
     )
     is_active = serializers.BooleanField(default=True)
 
-class VehicleServiceSerializer(serializers.Serializer):
+class Enrollment_eventSerializer(serializers.Serializer):
     enrollment_id = serializers.CharField(max_length=120)        # ID de Vehiculo (Postgres)
     event_type = serializers.ChoiceField(
         choices=Event.CHOICES,
@@ -52,3 +52,5 @@ class VehicleServiceSerializer(serializers.Serializer):
     source = serializers.ChoiceField(
         choices=Source.CHOICES,
         default=Source.WEB)
+    note = serializers.CharField(max_length=120)
+    created_at = serializers.DateField(required=False)
