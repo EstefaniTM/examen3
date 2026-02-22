@@ -35,7 +35,7 @@ class Source:
 
 
 class Course_catalogSerializer(serializers.Serializer):
-    course_title = serializers.CharField(max_length=120)
+    course_id = serializers.CharField(max_length=120)
     category = serializers.CharField(max_length=120)
     level = serializers.ChoiceField(
         choices=Level.CHOICES,

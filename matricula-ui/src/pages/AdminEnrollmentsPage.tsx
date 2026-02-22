@@ -38,7 +38,7 @@ export default function AdminEnrollmentsPage() {
     try {
       const data = await listCoursesApi();
       setCourses(data.results); // DRF paginado
-      if (!course && data.results.length > 0) setCourse(data.results[0].id);
+      if (course === 0 && data.results.length > 0) setCourse(data.results[0].id);
     } catch {
       // si falla, no bloquea la pantalla
     }
@@ -53,7 +53,7 @@ export default function AdminEnrollmentsPage() {
       if (!student_name.trim() || !status.trim()) return setError("Student_name y status son requeridos");
 
       const payload: Partial<Enrollment> = {
-        course_id: Number(course),
+        course_id: course,
         student_name: student_name.trim(),
         status: status as Estado | undefined,
         total: Number(total),
@@ -93,6 +93,8 @@ export default function AdminEnrollmentsPage() {
     }
   };
 
+
+
   return (
     <Container sx={{ mt: 3 }}>
       <Paper sx={{ p: 3 }}>
@@ -120,7 +122,15 @@ export default function AdminEnrollmentsPage() {
             </FormControl>
 
             <TextField label="Student_name" value={student_name} onChange={(e) => setStudent_name(e.target.value)} fullWidth />
-            <TextField label="Status" type="number" value={status} onChange={(e) => setStatus(e.target.value as Estado)} />
+            <Select
+            label="Status"
+            value={status}
+            onChange={(e) => setStatus(e.target.value as Estado)}
+          >
+            <MenuItem value={Estado.ENROLLED}>Enrolled</MenuItem>
+            <MenuItem value={Estado.COMPLETED}>Dropped</MenuItem>
+            <MenuItem value={Estado.CANCELLED}>Pending</MenuItem>
+          </Select>
           </Stack>
 
           <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
@@ -146,23 +156,29 @@ export default function AdminEnrollmentsPage() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {items.map((v) => (
-              <TableRow key={v.id}>
-                <TableCell>{v.id}</TableCell>
-                <TableCell>{v.course_id.title ?? "-"}</TableCell>
-                <TableCell>{v.student_name}</TableCell>
-                <TableCell>{v.status}</TableCell>
-                <TableCell>{v.total}</TableCell>
-                <TableCell>{v.created_at}</TableCell>
-                <TableCell align="right">
-                  <IconButton onClick={() => startEdit(v)}><EditIcon /></IconButton>
-                  <IconButton onClick={() => remove(v.id)}><DeleteIcon /></IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
+            {items.map((v) => {
+              const selectcourse = courses.find((m) => m.id === v.course_id);
+              return (
+                <TableRow key={v.id}>
+                  <TableCell>{v.id}</TableCell>
+                  <TableCell>{selectcourse ? `${selectcourse.title} (#${selectcourse.id})` : v.course_id}</TableCell>
+                  <TableCell>{v.student_name}</TableCell>
+                  <TableCell>
+                  {status === Estado.ENROLLED ? "Enrolled" : status}
+                  </TableCell>
+                  <TableCell>{v.total}</TableCell>
+                  <TableCell>{v.created_at}</TableCell>
+                  <TableCell align="right">
+                    <IconButton color="primary" onClick={() => startEdit(v)}><EditIcon /></IconButton>
+                    <IconButton color="error" onClick={() => remove(v.id)}><DeleteIcon /></IconButton>
+                  </TableCell>
+                </TableRow>
+              );
+              })}
           </TableBody>
         </Table>
       </Paper>
     </Container>
   );
+  
 }

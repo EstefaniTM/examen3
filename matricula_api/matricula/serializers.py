@@ -7,7 +7,7 @@ class CourseSerializer(serializers.ModelSerializer):
         fields = ["id", "title", "category", "price", "is_active"]
 
 class EnrollmentSerializer(serializers.ModelSerializer):
-    course_title = serializers.CharField(source="course_id.title", read_only=True)
+    course_id = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all())
 
     class Meta:
         model = Enrollment

@@ -15,7 +15,7 @@ export enum Estado {
 
 export type Enrollment = {
   id: number;
-  course_id: Course;
+  course_id: number;
   student_name: string;
   status: Estado; 
   total: number;
