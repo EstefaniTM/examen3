@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
 import { Container, Paper, Typography, Button, Stack, Table, TableHead, TableRow, TableCell, TableBody } from "@mui/material";
-import { type Enrollment, listEnrollmentsPublicApi } from "../api/enrollments.api";
+import { type EnrollmentItem, listEnrollmentsPublicApi } from "../api/enrollments.api";
 
-import { type Course, listCoursesApi } from "../api/courses.api";
-
-
-export default function PublicVehiclesPage() {
-  const [items, setItems] = useState<Enrollment[]>([]);
+export default function PublicEnrollmentsPage() {
+  const [items, setItems] = useState<EnrollmentItem[]>([]);
   const [error, setError] = useState("");
 
   const load = async () => {
@@ -35,18 +32,18 @@ export default function PublicVehiclesPage() {
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
-              <TableCell>Curso</TableCell>
-              <TableCell>Estudante</TableCell>
-              <TableCell>Status</TableCell>
+              <TableCell>CursoId</TableCell>
+              <TableCell>Nombre del Estudiante</TableCell>
+              <TableCell>Estado</TableCell>
               <TableCell>Total</TableCell>
-              <TableCell>Created</TableCell>
+              <TableCell>Creado en</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {items.map((v) => (
               <TableRow key={v.id}>
                 <TableCell>{v.id}</TableCell>
-                <TableCell>{course.find()}</TableCell>
+                <TableCell>{v.course_id}</TableCell>
                 <TableCell>{v.student_name}</TableCell>
                 <TableCell>{v.status}</TableCell>
                 <TableCell>{v.total}</TableCell>

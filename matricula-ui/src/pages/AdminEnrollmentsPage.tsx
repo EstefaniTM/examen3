@@ -6,23 +6,20 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Estado } from "../api/enrollments.api";
 
-import { type Course, listCoursesApi } from "../api/courses.api";
-import { type Enrollment, listEnrollmentsAdminApi, createEnrollmentApi, updateEnrollmentApi, deleteEnrollmentApi } from "../api/enrollments.api";
-
+import { type CourseItem, listCoursesApi } from "../api/courses.api";
+import { type EnrollmentItem, listEnrollmentsAdminApi, createEnrollmentApi, updateEnrollmentApi, deleteEnrollmentApi } from "../api/enrollments.api";
 
 export default function AdminEnrollmentsPage() {
-  const [items, setItems] = useState<Enrollment[]>([]);
-  const [courses, setCourses] = useState<Course[]>([]);
+  const [items, setItems] = useState<EnrollmentItem[]>([]);
+  const [courses, setCourses] = useState<CourseItem[]>([]);
   const [error, setError] = useState("");
 
   const [editId, setEditId] = useState<number | null>(null);
-  const [course, setCourse] = useState<number>(0);
+  const [course_id, setCourse_id] = useState<number>(0);
   const [student_name, setStudent_name] = useState("");
-  const [status, setStatus] = useState<Estado>(Estado.ENROLLED);
+  const [status, setStatus] = useState("pendiente");
   const [total, setTotal] = useState<number>(0);
-  const [created_at, setCreated_at] = useState("");
 
   const load = async () => {
     try {
@@ -30,7 +27,7 @@ export default function AdminEnrollmentsPage() {
       const data = await listEnrollmentsAdminApi();
       setItems(data.results); // DRF paginado
     } catch {
-      setError("No se pudo cargar vehículos. ¿Login? ¿Token admin?");
+      setError("No se pudo cargar Enrollments. ¿Login? ¿Token admin?");
     }
   };
 
@@ -38,7 +35,7 @@ export default function AdminEnrollmentsPage() {
     try {
       const data = await listCoursesApi();
       setCourses(data.results); // DRF paginado
-      if (course === 0 && data.results.length > 0) setCourse(data.results[0].id);
+      if (!course_id && data.results.length > 0) setCourse_id(data.results[0].id || 0);
     } catch {
       // si falla, no bloquea la pantalla
     }
@@ -49,38 +46,37 @@ export default function AdminEnrollmentsPage() {
   const save = async () => {
     try {
       setError("");
-      if (!course) return setError("Seleccione una course");
-      if (!student_name.trim() || !status.trim()) return setError("Student_name y status son requeridos");
+      if (!course_id) return setError("Seleccione una course");
+      if (!student_name.trim()) return setError("title del estudiante es requerido");
 
-      const payload: Partial<Enrollment> = {
-        course_id: course,
+      const payload = {
+        course: Number(course_id),
+        course_id: Number(course_id),
         student_name: student_name.trim(),
-        status: status as Estado | undefined,
-        total: Number(total),
-        created_at: created_at
+        status: status.trim(),
+        total: total,
       };
 
       if (editId) await updateEnrollmentApi(editId, payload);
       else await createEnrollmentApi(payload as any);
 
       setEditId(null);
+      setCourse_id(0);
       setStudent_name("");
-      setStatus(Estado.ENROLLED);
+      setStatus("pendiente");
       setTotal(0);
-      setCreated_at("");
       await load();
     } catch {
-      setError("No se pudo guardar Estudiante. ¿Token admin?");
+      setError("No se pudo guardar Enrollment. ¿Token admin?");
     }
   };
 
-  const startEdit = (v: Enrollment) => {
-    setEditId(v.id);
-    setCourse(v.course_id);
+  const startEdit = (v: EnrollmentItem) => {
+    setEditId(v.id || null);
+    setCourse_id(v.course_id);
     setStudent_name(v.student_name);
     setStatus(v.status);
     setTotal(v.total);
-    setCreated_at(v.created_at || "");
   };
 
   const remove = async (id: number) => {
@@ -89,16 +85,14 @@ export default function AdminEnrollmentsPage() {
       await deleteEnrollmentApi(id);
       await load();
     } catch {
-      setError("No se pudo eliminar vehículo. ¿Token admin?");
+      setError("No se pudo eliminar Enrollment. ¿Token admin?");
     }
   };
-
-
 
   return (
     <Container sx={{ mt: 3 }}>
       <Paper sx={{ p: 3 }}>
-        <Typography variant="h5" sx={{ mb: 2 }}>Admin Vehículos (Privado)</Typography>
+        <Typography variant="h5" sx={{ mb: 2 }}>Admin Enrollments (Privado)</Typography>
 
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
@@ -110,10 +104,10 @@ export default function AdminEnrollmentsPage() {
               <Select
                 labelId="course-label"
                 label="Course"
-                value={course}
-                onChange={(e) => setCourse(Number(e.target.value))}
+                value={course_id}
+                onChange={(e) => setCourse_id(Number(e.target.value))}
               >
-                {courses.map((m:Course) => (
+                {courses.map((m) => (
                   <MenuItem key={m.id} value={m.id}>
                     {m.title} (#{m.id})
                   </MenuItem>
@@ -121,24 +115,17 @@ export default function AdminEnrollmentsPage() {
               </Select>
             </FormControl>
 
-            <TextField label="Student_name" value={student_name} onChange={(e) => setStudent_name(e.target.value)} fullWidth />
-            <Select
-            label="Status"
-            value={status}
-            onChange={(e) => setStatus(e.target.value as Estado)}
-          >
-            <MenuItem value={Estado.ENROLLED}>Enrolled</MenuItem>
-            <MenuItem value={Estado.COMPLETED}>Dropped</MenuItem>
-            <MenuItem value={Estado.CANCELLED}>Pending</MenuItem>
-          </Select>
+            <TextField label="Student Name" value={student_name} onChange={(e) => setStudent_name(e.target.value)} fullWidth />
+            <TextField label="Status" value={status} onChange={(e) => setStatus(e.target.value)} sx={{ width: 160 }} />
+            <TextField label="Total" type="number" value={total} onChange={(e) => setTotal(e.target.value ? Number(e.target.value) : 0)} sx={{ width: 120 }} />
+            <TextField label="Curso_id" type="number" value={course_id} onChange={(e) => setCourse_id(Number(e.target.value))} sx={{ width: 120 }} />
+
           </Stack>
 
           <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-            <TextField label="Total" value={total} onChange={(e) => setTotal(Number(e.target.value))} sx={{ width: 220 }} />
-            <TextField label="Created_at" value={created_at} onChange={(e) => setCreated_at(e.target.value)} sx={{ width: 220 }} />
-
+            
             <Button variant="contained" onClick={save}>{editId ? "Actualizar" : "Crear"}</Button>
-            <Button variant="outlined" onClick={() => { setEditId(null); setStudent_name(""); setCreated_at(""); setStudent_name(""); }}>Limpiar</Button>
+            <Button variant="outlined" onClick={() => { setEditId(null); setStudent_name(""); setStatus("pendiente"); setTotal(0); setCourse_id(0); }}>Limpiar</Button>
             <Button variant="outlined" onClick={() => { load(); loadCourses(); }}>Refrescar</Button>
           </Stack>
         </Stack>
@@ -148,37 +135,29 @@ export default function AdminEnrollmentsPage() {
             <TableRow>
               <TableCell>ID</TableCell>
               <TableCell>Course</TableCell>
-              <TableCell>Student_name</TableCell>
-              <TableCell>status</TableCell>
-              <TableCell>total</TableCell>
-              <TableCell>created_at</TableCell>
+              <TableCell>Student Name</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>Total</TableCell>
               <TableCell align="right">Acciones</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {items.map((v) => {
-              const selectcourse = courses.find((m) => m.id === v.course_id);
-              return (
-                <TableRow key={v.id}>
-                  <TableCell>{v.id}</TableCell>
-                  <TableCell>{selectcourse ? `${selectcourse.title} (#${selectcourse.id})` : v.course_id}</TableCell>
-                  <TableCell>{v.student_name}</TableCell>
-                  <TableCell>
-                  {status === Estado.ENROLLED ? "Enrolled" : status}
-                  </TableCell>
-                  <TableCell>{v.total}</TableCell>
-                  <TableCell>{v.created_at}</TableCell>
-                  <TableCell align="right">
-                    <IconButton color="primary" onClick={() => startEdit(v)}><EditIcon /></IconButton>
-                    <IconButton color="error" onClick={() => remove(v.id)}><DeleteIcon /></IconButton>
-                  </TableCell>
-                </TableRow>
-              );
-              })}
+            {items.map((v) => (
+              <TableRow key={v.id}>
+                <TableCell>{v.id}</TableCell>
+                <TableCell>{v.course_id ?? v.course_id}</TableCell>
+                <TableCell>{v.student_name}</TableCell>
+                <TableCell>{v.status}</TableCell>
+                <TableCell>{v.total}</TableCell>
+                <TableCell align="right">
+                  <IconButton onClick={() => startEdit(v)}><EditIcon /></IconButton>
+                  <IconButton onClick={() => remove(v.id || 0)}><DeleteIcon /></IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </Paper>
     </Container>
   );
-  
 }

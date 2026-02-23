@@ -16,7 +16,7 @@ class Course(models.Model):
     
 class Estado(models.TextChoices):
         ENROLLED = "pendiente", "Pendiente"
-        COMPLETED = "conpletado", "Completado"
+        COMPLETED = "completado", "Completado"
         CANCELLED = "Cancelado", "cancelado"
 
     

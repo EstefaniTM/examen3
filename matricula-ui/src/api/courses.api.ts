@@ -7,26 +7,26 @@ export type Paginated<T> = {
   results: T[];
 };
 
-export type Course = {
-    id: number;
-    title: string;
-    category: string;
-    price: string;
-    is_active: boolean
-  };
+export type CourseItem = {
+  id?: number;
+  title: string;
+  category: string;
+  price?: number;
+  is_active: boolean;
+};
 
 export async function listCoursesApi() {
-  const { data } = await http.get<Paginated<Course>>("/api/courses/");
+  const { data } = await http.get<Paginated<CourseItem>>("/api/courses/");
   return data; // { count, next, previous, results }
 }
 
-export async function createCourseApi(nombre: string) {
-  const { data } = await http.post<Course>("/api/courses/", { nombre });
+export async function createCourseApi(payload: Omit<CourseItem, "id">) {
+  const { data } = await http.post<CourseItem>("/api/courses/", payload);
   return data;
 }
 
-export async function updateCourseApi(id: number, nombre: string) {
-  const { data } = await http.put<Course>(`/api/courses/${id}/`, { nombre });
+export async function updateCourseApi(id: number, payload: Partial<CourseItem>) {
+  const { data } = await http.put<CourseItem>(`/api/courses/${id}/`, payload);
   return data;
 }
 

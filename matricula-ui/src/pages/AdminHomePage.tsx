@@ -8,8 +8,8 @@ export default function AdminHomePage() {
         <Typography variant="h5" sx={{ mb: 2 }}>Panel Admin</Typography>
 
         <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-          <Button variant="contained" component={Link} to="/admin/marcas">CRUD Marcas</Button>
-          <Button variant="contained" component={Link} to="/admin/vehiculos">CRUD Vehículos</Button>
+          <Button variant="contained" component={Link} to="/admin/courses">CRUD courses</Button>
+          <Button variant="contained" component={Link} to="/admin/enrollments">CRUD enrollments</Button>
         </Stack>
       </Paper>
     </Container>

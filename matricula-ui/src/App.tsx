@@ -3,7 +3,7 @@ import { AppBar, Toolbar, Typography, Button, Stack } from "@mui/material";
 
 import HomePage from "./pages/HomePage";
 import AboutPage from "./pages/AboutPage";
-import PublicEnrollmentsPage from "./pages/AdminEnrollmentsPage";
+import PublicEnrollmentsPage from "./pages/PublicEnrollmentsPage";
 import LoginPage from "./pages/LoginPage";
 
 import AdminHomePage from "./pages/AdminHomePage";
@@ -47,7 +47,7 @@ export default function App() {
         />
 
         <Route
-          path="/admin/courses"
+          path="/admin/Courses"
           element={
             <RequireAuth>
               <AdminCoursesPage />
@@ -56,7 +56,7 @@ export default function App() {
         />
 
         <Route
-          path="/admin/enrollments"
+          path="/admin/Enrollments"
           element={
             <RequireAuth>
               <AdminEnrollmentsPage />
